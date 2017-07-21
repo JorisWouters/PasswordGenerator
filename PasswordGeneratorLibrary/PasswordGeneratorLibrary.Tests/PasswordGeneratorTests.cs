@@ -1,6 +1,4 @@
 ﻿using FluentAssertions;
-using System;
-using System.Linq;
 using Xunit;
 
 namespace PasswordGeneratorLibrary.Tests
@@ -8,12 +6,12 @@ namespace PasswordGeneratorLibrary.Tests
     public class PasswordGeneratorTests
     {
         [Fact]
-        public void CanHashPassword()
+        public void CanGenerateSalt()
         {
             using (var g = new PasswordGenerator())
             {
                 var salt = g.GenerateSalt();
-                salt.Length.Should().BeGreaterOrEqualTo(4);
+                salt.Content.Length.Should().BeGreaterOrEqualTo(4);
             }
         }
 
@@ -22,12 +20,15 @@ namespace PasswordGeneratorLibrary.Tests
         {
             using (var g = new PasswordGenerator())
             {
-                var salt = g.GenerateSalt(128);
+                var salt = g.GenerateSalt();
+
                 var hash = g.GenerateHash("TESTPASSWORDMETWATEXTRATEXT", salt);
-                hash.Length.Should().BeGreaterOrEqualTo(4);
+                hash.Should().NotBeNull();
+                hash.Salt.Should().Be(salt);
 
                 var hash2 = g.GenerateHash("TESTPASSWORDMETWATEXTRATEXT", salt);
-                hash.Should().Be(hash2);
+                hash.Hash.Should().Be(hash2.Hash);
+                hash.Salt.Should().Be(hash2.Salt);
             }
         }
     }
